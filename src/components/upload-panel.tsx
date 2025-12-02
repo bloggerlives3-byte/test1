@@ -78,36 +78,48 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
       formData.append("file", file);
       formData.append("expiresIn", expiry);
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!response.ok) {
-        const message = "Upload failed. Please retry.";
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          const message =
+            payload?.error || payload?.details || "Upload failed. Please retry.";
+          setUploads((prev) =>
+            prev.map((item) =>
+              item.id === tempId ? { ...item, status: "error", message } : item,
+            ),
+          );
+          setError(message);
+          return;
+        }
+
+        const payload = await response.json();
+        setUploads((prev) =>
+          prev.map((item) =>
+            item.id === tempId
+              ? {
+                  ...item,
+                  id: payload.id,
+                  url: payload.url,
+                  expiresAt: payload.expiresAt,
+                  status: "ready",
+                }
+              : item,
+          ),
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Upload failed. Please retry.";
         setUploads((prev) =>
           prev.map((item) =>
             item.id === tempId ? { ...item, status: "error", message } : item,
           ),
         );
         setError(message);
-        return;
       }
-
-      const payload = await response.json();
-      setUploads((prev) =>
-        prev.map((item) =>
-          item.id === tempId
-            ? {
-                ...item,
-                id: payload.id,
-                url: payload.url,
-                expiresAt: payload.expiresAt,
-                status: "ready",
-              }
-            : item,
-        ),
-      );
     },
     [expiry],
   );
