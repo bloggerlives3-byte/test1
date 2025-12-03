@@ -20,6 +20,11 @@ export const metadata: Metadata = {
     "Anonymous image uploads with expiring links. Built with Next.js and Supabase for privacy-first hosting.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -176,7 +176,7 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
   };
 
   return (
-    <div className="rounded-3xl bg-white/80 p-6 shadow-xl ring-1 ring-black/5 backdrop-blur">
+    <div className="w-full rounded-3xl bg-white/80 p-5 shadow-xl ring-1 ring-black/5 backdrop-blur sm:p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.2rem] text-slate-500">PicVault</p>
@@ -195,7 +195,7 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
       </div>
 
       <div
-        className={`mt-6 flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed bg-slate-50/70 px-6 py-10 transition ${
+        className={`mt-6 flex w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed bg-slate-50/70 px-4 py-8 transition sm:px-6 sm:py-10 ${
           isDragging ? "border-emerald-500 bg-emerald-50" : "border-slate-200"
         }`}
         onDrop={onDrop}
