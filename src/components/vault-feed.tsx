@@ -17,7 +17,7 @@ export function VaultFeed({ images }: { images: ImageRecord[] }) {
     <div className="rounded-3xl bg-slate-900 text-white shadow-lg shadow-slate-400/10 ring-1 ring-white/10">
       <div className="border-b border-white/10 px-4 py-4 sm:px-6">
         <p className="text-xs uppercase tracking-[0.2rem] text-slate-300">Vault pulse</p>
-        <h3 className="text-xl font-semibold">Latest public links</h3>
+        <h3 className="text-lg font-semibold sm:text-xl">Latest public links</h3>
         <p className="mt-1 text-sm text-slate-300">
           A rolling snapshot of the newest uploads (limit 12) to keep an eye on freshness.
         </p>
@@ -39,7 +39,7 @@ export function VaultFeed({ images }: { images: ImageRecord[] }) {
                 {image.expiresAt ? "Expiring" : "Permanent"}
               </span>
             </div>
-            <div className="relative h-32 overflow-hidden rounded-lg border border-white/10 bg-black/20">
+            <div className="relative h-28 overflow-hidden rounded-lg border border-white/10 bg-black/20 sm:h-32">
               <Image
                 src={image.publicUrl}
                 alt={image.filename}

@@ -14,8 +14,8 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f4f1] via-[#f3f7f8] to-[#ecf1ff] text-slate-900">
       <AuthProvider>
-        <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-8 lg:px-12">
-          <header className="flex flex-col gap-4 rounded-3xl bg-white/80 p-5 shadow-xl ring-1 ring-black/5 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:gap-8 sm:px-8 sm:py-10 lg:px-12">
+          <header className="flex flex-col gap-4 rounded-3xl bg-white/80 p-4 shadow-xl ring-1 ring-black/5 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
               <p className="text-xs uppercase tracking-[0.2rem] text-slate-500">MVP v1.0</p>
               <h1 className="text-2xl font-semibold leading-tight sm:text-3xl lg:text-4xl">

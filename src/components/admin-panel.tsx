@@ -9,7 +9,7 @@ function formatBytes(bytes: number) {
 
 export function AdminPanel({ metrics }: { metrics: AdminMetrics }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-lg shadow-slate-200/40 ring-1 ring-black/5 backdrop-blur sm:p-6">
+    <div className="rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-lg shadow-slate-200/40 ring-1 ring-black/5 backdrop-blur sm:p-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.2rem] text-slate-500">Admin</p>

@@ -182,7 +182,7 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
   };
 
   return (
-    <div className="w-full rounded-3xl bg-white/80 p-4 shadow-xl ring-1 ring-black/5 backdrop-blur sm:p-6">
+    <div className="w-full rounded-3xl bg-white/80 p-3 shadow-xl ring-1 ring-black/5 backdrop-blur sm:p-5 lg:p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-[0.2rem] text-slate-500 sm:text-sm">PicVault</p>
@@ -207,7 +207,7 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
       </div>
 
       <div
-        className={`mt-6 flex w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed bg-slate-50/70 px-4 py-8 transition sm:px-6 sm:py-10 ${
+        className={`mt-6 flex w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed bg-slate-50/70 px-3 py-6 transition sm:px-6 sm:py-10 ${
           isDragging ? "border-emerald-500 bg-emerald-50" : "border-slate-200"
         }`}
         onDrop={onDrop}
@@ -224,7 +224,7 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
           Supports JPG, PNG, GIF, and WebP up to 10MB. Anonymous by default—no cookies or
           accounts required.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           {selectExpiry.map((option) => (
             <button
               key={option.value}
