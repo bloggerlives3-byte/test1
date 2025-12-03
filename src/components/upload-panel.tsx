@@ -176,21 +176,21 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
   };
 
   return (
-    <div className="w-full rounded-3xl bg-white/80 p-5 shadow-xl ring-1 ring-black/5 backdrop-blur sm:p-6">
+    <div className="w-full rounded-3xl bg-white/80 p-4 shadow-xl ring-1 ring-black/5 backdrop-blur sm:p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.2rem] text-slate-500">PicVault</p>
-          <h1 className="text-3xl font-semibold text-slate-900 md:text-4xl">
+        <div className="min-w-0">
+          <p className="text-xs uppercase tracking-[0.2rem] text-slate-500 sm:text-sm">PicVault</p>
+          <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl md:text-4xl">
             Anonymous uploads with instant links
           </h1>
-          <p className="mt-2 max-w-2xl text-base text-slate-600">
+          <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
             Drag & drop images to store them in Supabase storage. Choose how long each file
             lives before it auto-expires.
           </p>
         </div>
-        <div className="flex gap-2 rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700">
+        <div className="flex w-full items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 sm:w-auto">
           <span className="inline-flex h-2 w-2 translate-y-1.5 rounded-full bg-emerald-500" />
-          Privacy mode on — no tracking
+          <span className="truncate">Privacy mode on — no tracking</span>
         </div>
       </div>
 
@@ -250,12 +250,12 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
       </div>
 
       <div className="mt-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2rem] text-slate-500">Session</p>
             <h3 className="text-xl font-semibold text-slate-900">Your recent uploads</h3>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+          <span className="w-full rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 sm:w-auto">
             Auto-saves to this browser only
           </span>
         </div>
@@ -312,7 +312,7 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
               {item.url && (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-700">
-                    <span className="truncate">{item.url}</span>
+                    <span className="min-w-0 flex-1 truncate">{item.url}</span>
                     <button
                       className="shrink-0 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold text-white transition hover:-translate-y-0.5 hover:shadow"
                       type="button"
