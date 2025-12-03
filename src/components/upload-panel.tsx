@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import type { ExpiryOption, ImageRecord } from "@/lib/types";
+import { useAuth } from "@/context/auth-context";
 
 type UploadStatus = "idle" | "uploading" | "ready" | "error";
 
@@ -30,6 +31,7 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
   const [expiry, setExpiry] = useState<ExpiryOption>("7d");
   const [error, setError] = useState<string | null>(null);
   const [uploads, setUploads] = useState<SessionUpload[]>([]);
+  const { session, loading: authLoading } = useAuth();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -59,108 +61,112 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(uploads));
   }, [uploads]);
 
-  const uploadFile = useCallback(
-    async (file: File) => {
-      setError(null);
-      const tempId = crypto.randomUUID();
-      setUploads((prev) => [
-        {
-          id: tempId,
-          filename: file.name,
-          url: "",
-          expiresAt: null,
-          status: "uploading",
-        },
-        ...prev,
-      ]);
+  const uploadFile = async (file: File) => {
+    setError(null);
+    const tempId = crypto.randomUUID();
+    setUploads((prev) => [
+      {
+        id: tempId,
+        filename: file.name,
+        url: "",
+        expiresAt: null,
+        status: "uploading",
+      },
+      ...prev,
+    ]);
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("expiresIn", expiry);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("expiresIn", expiry);
 
-      try {
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+    try {
+      const headers: HeadersInit = {};
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+      }
 
-        if (!response.ok) {
-          const payload = await response.json().catch(() => ({}));
-          const message =
-            payload?.error || payload?.details || "Upload failed. Please retry.";
-          setUploads((prev) =>
-            prev.map((item) =>
-              item.id === tempId ? { ...item, status: "error", message } : item,
-            ),
-          );
-          setError(message);
-          return;
-        }
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+        headers,
+      });
 
-        const payload = await response.json();
-        setUploads((prev) =>
-          prev.map((item) =>
-            item.id === tempId
-              ? {
-                  ...item,
-                  id: payload.id,
-                  url: payload.url,
-                  expiresAt: payload.expiresAt,
-                  status: "ready",
-                }
-              : item,
-          ),
-        );
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Upload failed. Please retry.";
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        const message = payload?.error || payload?.details || "Upload failed. Please retry.";
         setUploads((prev) =>
           prev.map((item) =>
             item.id === tempId ? { ...item, status: "error", message } : item,
           ),
         );
         setError(message);
+        return;
       }
-    },
-    [expiry],
-  );
 
-  const onFilesSelected = useCallback(
-    (files: FileList | null) => {
-      if (!files) return;
-      const list = Array.from(files);
-      list.forEach((file) => {
-        if (!ACCEPTED_TYPES.includes(file.type)) {
-          setError("Only JPG, PNG, GIF, or WebP are allowed.");
-          return;
-        }
-        if (file.size > MAX_FILE_SIZE) {
-          setError("Files are limited to 10MB for the MVP.");
-          return;
-        }
-        uploadFile(file);
-      });
-    },
-    [uploadFile],
-  );
+      const payload = await response.json();
+      setUploads((prev) =>
+        prev.map((item) =>
+          item.id === tempId
+            ? {
+                ...item,
+                id: payload.id,
+                url: payload.url,
+                expiresAt: payload.expiresAt,
+                status: "ready",
+              }
+            : item,
+        ),
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed. Please retry.";
+      setUploads((prev) =>
+        prev.map((item) =>
+          item.id === tempId ? { ...item, status: "error", message } : item,
+        ),
+      );
+      setError(message);
+    }
+  };
 
-  const onDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      setIsDragging(false);
-      onFilesSelected(event.dataTransfer.files);
-    },
-    [onFilesSelected],
-  );
+  const onFilesSelected = (files: FileList | null) => {
+    if (!session) {
+      setError("Sign in to upload.");
+      return;
+    }
+    if (!files) return;
+    const list = Array.from(files);
+    list.forEach((file) => {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        setError("Only JPG, PNG, GIF, or WebP are allowed.");
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setError("Files are limited to 10MB for the MVP.");
+        return;
+      }
+      uploadFile(file);
+    });
+  };
 
-  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (!session) {
+      setError("Sign in to upload.");
+      return;
+    }
+    setIsDragging(false);
+    onFilesSelected(event.dataTransfer.files);
+  };
+
+  const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(true);
-  }, []);
+  };
 
-  const onDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
-  }, []);
+  };
 
   const selectExpiry = useMemo(
     () => [
@@ -189,8 +195,14 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
           </p>
         </div>
         <div className="flex w-full items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 sm:w-auto">
-          <span className="inline-flex h-2 w-2 translate-y-1.5 rounded-full bg-emerald-500" />
-          <span className="truncate">Privacy mode on — no tracking</span>
+          <span
+            className={`inline-flex h-2 w-2 translate-y-1.5 rounded-full ${
+              session ? "bg-emerald-500" : "bg-amber-500"
+            }`}
+          />
+          <span className="truncate">
+            {session ? "Signed in — uploads enabled" : "Sign in to upload images"}
+          </span>
         </div>
       </div>
 
@@ -233,8 +245,9 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
             className="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-300"
             type="button"
             onClick={() => fileInputRef.current?.click()}
+            disabled={!session || authLoading}
           >
-            Choose files
+            {session ? "Choose files" : "Sign in to upload"}
           </button>
           <span className="text-sm text-slate-500">or drag files into this area</span>
           <input
@@ -244,9 +257,13 @@ export function UploadPanel({ initialImages }: { initialImages: ImageRecord[] })
             multiple
             className="hidden"
             onChange={(event) => onFilesSelected(event.target.files)}
+            disabled={!session}
           />
         </div>
         {error ? <p className="text-sm text-red-500">{error}</p> : null}
+        {!session && !error ? (
+          <p className="text-sm text-slate-500">Sign in first to enable uploads.</p>
+        ) : null}
       </div>
 
       <div className="mt-8">

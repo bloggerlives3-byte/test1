@@ -16,6 +16,20 @@ export async function POST(request: Request) {
     );
   }
 
+  const authHeader = request.headers.get("authorization");
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+  const supabase = getServiceClient();
+
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  if (userError || !userData?.user) {
+    return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
+  }
+  const userId = userData.user.id;
+
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
   const expiresIn = (formData.get("expiresIn") as ExpiryOption | null) ?? "permanent";
@@ -28,7 +42,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unsupported file type." }, { status: 400 });
   }
 
-  const supabase = getServiceClient();
   const arrayBuffer = await file.arrayBuffer();
   const fileExt = file.name.split(".").pop();
   const id = randomUUID();
@@ -73,6 +86,7 @@ export async function POST(request: Request) {
       size: file.size,
       content_type: file.type,
       expires_at: expiresAt ? expiresAt.toISOString() : null,
+      user_id: userId,
     })
     .select("*")
     .single();

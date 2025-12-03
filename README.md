@@ -28,6 +28,7 @@ create table if not exists public.images (
   size bigint,
   content_type text,
   expires_at timestamp with time zone,
+  user_id uuid references auth.users (id),
   created_at timestamp with time zone default now()
 );
 ```
@@ -38,6 +39,8 @@ create policy "Public read images" on public.images
 for select using (true);
 
 -- service role will bypass RLS for inserts; keep RLS enabled elsewhere.
+
+-- Optionally add per-user ownership rules if you later open read/write to user tokens.
 ```
 
 ## Features delivered
